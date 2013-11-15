@@ -13,6 +13,7 @@ module RezzzaCapistranoTools
 
             load_paths.push File.expand_path('../', __FILE__)
             load 'vaultage'
+            load 'apc_clear'
         end
     end
 end

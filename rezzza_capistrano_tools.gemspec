@@ -1,10 +1,11 @@
 Gem::Specification.new do |spec|
 
   spec.name         = 'rezzza_capistrano_tools'
-  spec.version      = '0.2.0.dev'
+  spec.version      = '0.3.0.dev'
   spec.platform     = Gem::Platform::RUBY
   spec.description  = <<-DESC
 - Vaultage integration
+- Apc cache clear before symlink
 - Diffs between local and remote
   DESC
   spec.summary      = "Some tools for capistrano."
