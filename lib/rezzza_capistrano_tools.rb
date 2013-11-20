@@ -6,6 +6,7 @@ require 'inifile'
 require 'yaml'
 require 'zlib'
 require 'ruby-progressbar'
+require 'tempfile'
 
 module RezzzaCapistranoTools
     def self.load_into(configuration)

@@ -11,25 +11,27 @@ end
 
 namespace :vaultage do
     task :decrypt do
-        randomstr  = `openssl rand -base64 10`.strip
-        localfiles = []
+        tempfiles    = []
+        cryptedpaths = []
 
         vaultage_files.each_with_index do |files, index|
-            tmp = "/tmp/#{application}_parameters_#{randomstr}#{index}.yml.#{vaultage_extension}"
-            top.download(latest_release+"/"+files[0], tmp)
-            localfiles.push(tmp)
+            tempfile = Tempfile.new(application)
+
+            top.download(latest_release+"/"+files[0], tempfile.path+"."+vaultage_extension)
+
+            tempfiles.push(tempfile);
+            cryptedpaths.push(tempfile.path+"."+vaultage_extension);
         end
 
-        system "vaultage decrypt --write --files="+localfiles.join(',')
+        system "vaultage decrypt --write --files="+cryptedpaths.join(',')
 
         vaultage_files.each_with_index do |files, index|
-            top.upload("/tmp/#{application}_parameters_#{randomstr}#{index}.yml", latest_release+"/"+files[1])
+            top.upload(tempfiles[index].path, latest_release+"/"+files[1])
+            tempfiles[index].unlink
         end
     end
 
     task :diff do
-        randomstr  = `openssl rand -base64 10`.strip
-
         vaultage_files.each_with_index do |files, index|
             directory = File.dirname(files[0])
 
@@ -64,17 +66,17 @@ namespace :vaultage do
             remote = from_vendor ? "composer" : "capistrano"
             system "cd #{absolute_directory} && git fetch #{remote}"
 
-            tmp1 = "/tmp/#{application}_parameters_1_#{randomstr}#{index}.yml.gpg"
-            tmp2 = "/tmp/#{application}_parameters_2_#{randomstr}#{index}.yml"
+            tmp1 = Tempfile.new(application)
+            tmp2 = Tempfile.new(application)
 
             # fetch encrypted file from git
-            system "cd #{absolute_directory} && git show #{remote}/#{branch}:#{files[0].gsub(root_directory, '')} > #{tmp1}"
+            system "cd #{absolute_directory} && git show #{remote}/#{branch}:#{files[0].gsub(root_directory, '')} > #{tmp1.path}.gpg"
             # download decrypted file on remote server
-            top.download(latest_release+"/"+files[1], tmp2)
+            top.download(latest_release+"/"+files[1], tmp2.path)
 
             capifony_pretty_print("Diff between local (versionned) #{files[0]} and remote #{files[1]}")
 
-            system "vaultage diff --files=#{tmp1},#{tmp2}"
+            system "vaultage diff --files=#{tmp1.path}.gpg,#{tmp2.path}"
         end
     end
 end

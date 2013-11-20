@@ -1,7 +1,7 @@
 Gem::Specification.new do |spec|
 
   spec.name         = 'rezzza_capistrano_tools'
-  spec.version      = '0.3.2.dev'
+  spec.version      = '0.3.3.dev'
   spec.platform     = Gem::Platform::RUBY
   spec.description  = <<-DESC
 - Vaultage integration
